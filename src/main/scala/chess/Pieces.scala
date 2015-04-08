@@ -6,11 +6,14 @@ case class Position(x: Int, y: Int) {
   def yDiff(position: Position): Int = (y - position.y).abs
 }
 
-abstract class Piece(occupies: Position) {
+abstract class Piece(private val occupies: Position) {
   def isAttacking(position: Position): Boolean
   
   def isAttackingOrOccupies(position: Position): Boolean =
-    occupies == position || isAttacking(position) 
+    occupies == position || isAttacking(position)
+    
+  def isConflictedWith(piece: Piece): Boolean =
+    isAttackingOrOccupies(piece.occupies)
 }
 
 class King(occupies: Position) extends Piece(occupies) {

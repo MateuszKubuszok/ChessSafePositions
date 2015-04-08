@@ -1,4 +1,5 @@
 scalaVersion := "2.10.4"
+scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 lazy val root = (project in file(".")).settings(
   name := "Chess Safe Positions",

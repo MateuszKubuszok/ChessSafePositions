@@ -1,5 +1,6 @@
 # SBT output
 target/
+.cache
 
 # Eclipse generated files
 /.metadata
