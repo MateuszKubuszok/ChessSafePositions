@@ -1,0 +1,8 @@
+# SBT output
+target/
+
+# Eclipse generated files
+/.metadata
+.settings/
+.classpath
+.project
