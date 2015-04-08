@@ -1,3 +1,5 @@
+scalaVersion := "2.10.4"
+
 lazy val root = (project in file(".")).settings(
   name := "Chess Safe Positions",
   version := "0.1.0"
