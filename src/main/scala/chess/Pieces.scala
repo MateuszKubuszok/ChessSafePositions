@@ -1,9 +1,9 @@
 package chess
 
 case class Position(x: Int, y: Int) {
-  def xDiff(position: Position): Int = (x - position.x).abs
+  def xDist(position: Position): Int = (x - position.x).abs
     
-  def yDiff(position: Position): Int = (y - position.y).abs
+  def yDist(position: Position): Int = (y - position.y).abs
 }
 
 abstract class Piece(private val occupies: Position) {
@@ -18,18 +18,18 @@ abstract class Piece(private val occupies: Position) {
 
 class King(occupies: Position) extends Piece(occupies) {
   def isAttacking(position: Position): Boolean =
-    occupies.xDiff(position) <= 1 && occupies.yDiff(position) <= 1
+    occupies.xDist(position) <= 1 && occupies.yDist(position) <= 1
 }
 
 class Knight(occupies: Position) extends Piece(occupies) {
   def isAttacking(position: Position): Boolean =
-    (occupies.xDiff(position) == 1 && occupies.yDiff(position) == 2) ||
-    (occupies.xDiff(position) == 2 && occupies.yDiff(position) == 1)
+    (occupies.xDist(position) == 1 && occupies.yDist(position) == 2) ||
+    (occupies.xDist(position) == 2 && occupies.yDist(position) == 1)
 }
 
 trait RookLike {
   def isAttackingLikeRook(occupies: Position, position: Position): Boolean =
-    occupies.xDiff(position) == 0 || occupies.yDiff(position) == 0
+    occupies.xDist(position) == 0 || occupies.yDist(position) == 0
 }
 
 class Rook(occupies: Position) extends Piece(occupies) with RookLike {
@@ -39,7 +39,7 @@ class Rook(occupies: Position) extends Piece(occupies) with RookLike {
 
 trait BishopLike {
   def isAttackingLikeBishop(occupies: Position, position: Position): Boolean =
-    occupies.xDiff(position) == occupies.yDiff(position)
+    occupies.xDist(position) == occupies.yDist(position)
 }
 
 class Bishop(occupies: Position) extends Piece(occupies) with BishopLike {
