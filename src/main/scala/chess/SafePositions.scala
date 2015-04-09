@@ -8,6 +8,9 @@ object SafePositions {
   type AllowedPositions = Stream[Position]
   type PiecesLeft = Stream[PieceFactory]
   
+  def makeBoard(n: Int, m: Int): AllowedPositions =
+    Stream.from(n * m - 1).map(i => new Position(i / m, i % m))
+  
   def makeFactories(kings: Int, knights: Int, rooks: Int, bishops: Int, queens: Int): PiecesLeft =
     Stream.fill[PieceFactory](kings)(new King(_)) #:::
     Stream.fill[PieceFactory](knights)(new Knight(_)) #:::
@@ -26,7 +29,16 @@ object SafePositions {
     allowedPositions.map(pieceFactory).filter(isAllowed).map(pieceToPartial)
   }
   
-  def addNextPieceToPartial(partial: Stream[(SafePieces, AllowedPositions)], piecesLeft: PiecesLeft): Stream[SafePieces] =
-    if (piecesLeft.isEmpty) partial.map(_._1)
+  def addNextPieceToPartial(partial: Stream[(SafePieces, AllowedPositions)], piecesLeft: PiecesLeft): Stream[(SafePieces, AllowedPositions)] =
+    if (piecesLeft.isEmpty) partial
     else Stream() #::: addNextPieceToPartial(partial.map(safePositionsForNextPiece(piecesLeft.head)).flatten, piecesLeft.tail)
+    
+  def solve(allowedPositions: AllowedPositions, piecesLeft: PiecesLeft): Stream[SafePieces] =
+    addNextPieceToPartial(Stream((Set(), allowedPositions)), piecesLeft).map(_._1)
+}
+
+class SafePositions(n: Int, m: Int, kings: Int, knights: Int, rooks: Int, bishops: Int, queens: Int) {
+  lazy val board = SafePositions.makeBoard(n, m)
+  lazy val piecesLeft = SafePositions.makeFactories(kings, knights, rooks, bishops, queens)
+  lazy val solution = SafePositions.solve(board, piecesLeft)
 }
