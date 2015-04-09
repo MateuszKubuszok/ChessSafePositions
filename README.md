@@ -1,5 +1,7 @@
 # Chess Safe Positions
 
+[![Build Status](https://travis-ci.org/MateuszKubuszok/ChessSafePositions.svg)](https://travis-ci.org/MateuszKubuszok/ChessSafePositions)
+
 Generates all positions where none of the pieces would be attacking any other
 piece. Input is size of the board and number of each non-pawn piece.
 
