@@ -12,7 +12,7 @@ abstract class Piece(private val occupies: Position) {
   def isAttackingOrOccupies(position: Position): Boolean =
     occupies == position || isAttacking(position)
     
-  def isConflictedWith(piece: Piece): Boolean =
+  def isAttackingOrOccupies(piece: Piece): Boolean =
     isAttackingOrOccupies(piece.occupies)
 }
 
