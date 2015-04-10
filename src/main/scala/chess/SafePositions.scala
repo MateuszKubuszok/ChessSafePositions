@@ -1,15 +1,16 @@
 package chess
 
+import scala.collection.immutable.SortedSet
 import scala.collection.immutable.List
 
 object SafePositions {
   type PieceFactory = Position => Piece
-  type SafePieces = Set[Piece]
+  type SafePieces = SortedSet[Piece]
   type AllowedPositions = Stream[Position]
   type PiecesLeft = Stream[PieceFactory]
   
   def makeBoard(n: Int, m: Int): AllowedPositions =
-    Stream.from(n * m - 1).map(i => new Position(i / m, i % m))
+    Stream.from(0).take(n * m).map(i => new Position(i / m, i % m))
   
   def makeFactories(kings: Int, knights: Int, rooks: Int, bishops: Int, queens: Int): PiecesLeft =
     Stream.fill[PieceFactory](kings)(new King(_)) #:::
@@ -23,8 +24,12 @@ object SafePositions {
     val allowedPositions = piecesPositionsPair._2
     
     def isAllowed(piece: Piece): Boolean = !safePieces.exists(piece.isAttackingOrOccupies)
+    def positionKeepsOrder(piece: Piece)(position: Position): Boolean = {
+      val sameTypePieces = (safePieces + piece).filter(piece.isSameTypeAs)
+      sameTypePieces.isEmpty || (sameTypePieces.max.position < position)
+    }
     def pieceToPartial(piece: Piece): (SafePieces, AllowedPositions) =
-      (safePieces + piece, allowedPositions.filterNot(piece.isAttackingOrOccupies))
+      (safePieces + piece, allowedPositions.filterNot(piece.isAttackingOrOccupies).filter(positionKeepsOrder(piece)))
     
     allowedPositions.map(pieceFactory).filter(isAllowed).map(pieceToPartial)
   }
@@ -34,7 +39,7 @@ object SafePositions {
     else Stream() #::: addNextPieceToPartial(partial.map(safePositionsForNextPiece(piecesLeft.head)).flatten, piecesLeft.tail)
     
   def solve(allowedPositions: AllowedPositions, piecesLeft: PiecesLeft): Stream[SafePieces] =
-    addNextPieceToPartial(Stream((Set(), allowedPositions)), piecesLeft).map(_._1)
+    addNextPieceToPartial(Stream((SortedSet(), allowedPositions)), piecesLeft).map(_._1)
 }
 
 class SafePositions(n: Int, m: Int, kings: Int, knights: Int, rooks: Int, bishops: Int, queens: Int) {
