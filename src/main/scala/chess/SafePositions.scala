@@ -23,20 +23,23 @@ object SafePositions {
     val safePieces = piecesPositionsPair._1
     val allowedPositions = piecesPositionsPair._2
     
-    def isAllowed(piece: Piece): Boolean = !safePieces.exists(piece.isAttackingOrOccupies)
-    def positionKeepsOrder(piece: Piece)(position: Position): Boolean = {
-      val sameTypePieces = (safePieces + piece).filter(piece.isSameTypeAs)
-      sameTypePieces.isEmpty || (sameTypePieces.max.position < position)
+    def pieceTypeLastPosition(newPiece: Piece) = {
+      val sameTypePieces = safePieces.filter(newPiece.isSameTypeAs)
+      if (sameTypePieces.isEmpty) new Position(-1, -1) else sameTypePieces.last.position
     }
-    def pieceToPartial(piece: Piece): (SafePieces, AllowedPositions) =
-      (safePieces + piece, allowedPositions.filterNot(piece.isAttackingOrOccupies).filter(positionKeepsOrder(piece)))
+    def isAllowed(newPiece: Piece): Boolean =
+      !safePieces.exists(newPiece.isAttackingOrOccupies) && (pieceTypeLastPosition(newPiece) < newPiece.position)
+    
+    def pieceToPartial(newPiece: Piece): (SafePieces, AllowedPositions) =
+      (safePieces + newPiece, allowedPositions.filterNot(newPiece.isAttackingOrOccupies))
     
     allowedPositions.map(pieceFactory).filter(isAllowed).map(pieceToPartial)
   }
   
-  def addNextPieceToPartial(partial: Stream[(SafePieces, AllowedPositions)], piecesLeft: PiecesLeft): Stream[(SafePieces, AllowedPositions)] =
+  def addNextPieceToPartial(partial: Stream[(SafePieces, AllowedPositions)], piecesLeft: PiecesLeft): Stream[(SafePieces, AllowedPositions)] = {
     if (piecesLeft.isEmpty) partial
     else Stream() #::: addNextPieceToPartial(partial.map(safePositionsForNextPiece(piecesLeft.head)).flatten, piecesLeft.tail)
+  }
     
   def solve(allowedPositions: AllowedPositions, piecesLeft: PiecesLeft): Stream[SafePieces] =
     addNextPieceToPartial(Stream((SortedSet(), allowedPositions)), piecesLeft).map(_._1)
@@ -49,7 +52,7 @@ class SafePositions(n: Int, m: Int, kings: Int, knights: Int, rooks: Int, bishop
   
   def validateSolution: Boolean = {
     val requiredSafePieces = kings + knights + rooks + bishops + queens 
-    val combinationsMatchingRequirements = solution.filter(_.size == requiredSafePieces)
+    lazy val combinationsMatchingRequirements = solution.filter(_.size == requiredSafePieces)
     combinationsMatchingRequirements.size == solution.size
   }
 }

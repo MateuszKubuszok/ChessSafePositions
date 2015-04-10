@@ -1,9 +1,9 @@
 package chess
 
 case class Position(x: Int, y: Int) extends Ordered[Position] {
-  def xDist(position: Position): Int = (x - position.x).abs
+  def xDist(that: Position): Int = (x - that.x).abs
     
-  def yDist(position: Position): Int = (y - position.y).abs
+  def yDist(that: Position): Int = (y - that.y).abs
   
   def compare(that: Position) = if (x != that.x) x.compare(that.x) else y.compare(that.y)
   
