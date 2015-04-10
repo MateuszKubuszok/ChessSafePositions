@@ -46,4 +46,10 @@ class SafePositions(n: Int, m: Int, kings: Int, knights: Int, rooks: Int, bishop
   lazy val board = SafePositions.makeBoard(n, m)
   lazy val piecesLeft = SafePositions.makeFactories(kings, knights, rooks, bishops, queens)
   lazy val solution = SafePositions.solve(board, piecesLeft)
+  
+  def validateSolution: Boolean = {
+    val requiredSafePieces = kings + knights + rooks + bishops + queens 
+    val combinationsMatchingRequirements = solution.filter(_.size == requiredSafePieces)
+    combinationsMatchingRequirements.size == solution.size
+  }
 }
