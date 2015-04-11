@@ -25,15 +25,15 @@ abstract class Piece(private val occupies: Position, private val name: String) e
 
   def position = occupies
 
-  override def toString(): String = name + occupies
+  override def toString(): String = name
 }
 
-class King(occupies: Position) extends Piece(occupies, "King") {
+class King(occupies: Position) extends Piece(occupies, "K") {
   def isAttacking(position: Position): Boolean =
     occupies.xDist(position) <= 1 && occupies.yDist(position) <= 1
 }
 
-class Knight(occupies: Position) extends Piece(occupies, "Knight") {
+class Knight(occupies: Position) extends Piece(occupies, "N") {
   def isAttacking(position: Position): Boolean =
     (occupies.xDist(position) == 1 && occupies.yDist(position) == 2) ||
       (occupies.xDist(position) == 2 && occupies.yDist(position) == 1)
@@ -44,7 +44,7 @@ trait RookLike {
     occupies.xDist(position) == 0 || occupies.yDist(position) == 0
 }
 
-class Rook(occupies: Position) extends Piece(occupies, "Rook") with RookLike {
+class Rook(occupies: Position) extends Piece(occupies, "R") with RookLike {
   def isAttacking(position: Position): Boolean =
     isAttackingLikeRook(occupies, position)
 }
@@ -54,12 +54,12 @@ trait BishopLike {
     occupies.xDist(position) == occupies.yDist(position)
 }
 
-class Bishop(occupies: Position) extends Piece(occupies, "Bishop") with BishopLike {
+class Bishop(occupies: Position) extends Piece(occupies, "B") with BishopLike {
   def isAttacking(position: Position): Boolean =
     isAttackingLikeBishop(occupies, position)
 }
 
-class Queen(occupies: Position) extends Piece(occupies, "Queen") with RookLike with BishopLike {
+class Queen(occupies: Position) extends Piece(occupies, "Q") with RookLike with BishopLike {
   def isAttacking(position: Position): Boolean =
     isAttackingLikeRook(occupies, position) || isAttackingLikeBishop(occupies, position)
 }

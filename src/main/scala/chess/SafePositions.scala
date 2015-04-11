@@ -54,6 +54,16 @@ class SafePositions(n: Int, m: Int, kings: Int, knights: Int, rooks: Int, bishop
   def board = SafePositions.makeBoard(n, m)
   def piecesLeft = SafePositions.makeFactories(kings, knights, rooks, bishops, queens)
   def solution = SafePositions.solve(board, piecesLeft)
+  
+  def formatPositions(pieces: SafePositions.SafePieces): String = {
+    def positionToString(position: Position): String =
+      pieces.find(_.position == position).map(_.toString).getOrElse(" ")
+    
+    def makeRow(x: Int): String =
+      (0 until m).map(y => new Position(x, y)).map(positionToString).reduce(_ + _)
+   
+     (0 until n).map(_ => "-").reduce(_ + _) + '\n' + (0 until n).map(makeRow).reduce(_ + '\n' + _)
+  }
 
   def size: Int = solution.size
 }

@@ -56,7 +56,7 @@ object Main {
 
   def showSolutions(safePositions: SafePositions) = 
     for (positions <- safePositions.solution)
-      println(positions)
+      println(safePositions.formatPositions(positions))
 
   def showSolutionSize(safePositions: SafePositions) =
     println("Solution size: " + safePositions.size)
