@@ -9,6 +9,8 @@ object SafePositions {
   type AllowedPositions = Stream[Position]
   type PiecesLeft = Stream[PieceFactory]
 
+  val lastPositionNotFound = new Position(-1, -1)
+
   def makeBoard(n: Int, m: Int): AllowedPositions =
     Stream.from(0).take(n * m).map(i => new Position(i / m, i % m))
 
@@ -25,7 +27,7 @@ object SafePositions {
 
     def pieceTypeLastPosition(newPiece: Piece) = {
       val sameTypePieces = safePieces.filter(newPiece.isSameTypeAs)
-      if (sameTypePieces.isEmpty) new Position(-1, -1) else sameTypePieces.last.position
+      if (sameTypePieces.isEmpty) lastPositionNotFound else sameTypePieces.last.position
     }
     def isAllowed(newPiece: Piece): Boolean =
       !safePieces.exists(newPiece.isAttackingOrOccupies) && (pieceTypeLastPosition(newPiece) < newPiece.position)
@@ -36,23 +38,22 @@ object SafePositions {
     allowedPositions.map(pieceFactory).filter(isAllowed).map(pieceToPartial)
   }
 
-  def addNextPieceToPartial(partial: Stream[(SafePieces, AllowedPositions)], piecesLeft: PiecesLeft): Stream[(SafePieces, AllowedPositions)] = {
+  @scala.annotation.tailrec
+  def addNextPieceToPartial(partial: Iterator[(SafePieces, AllowedPositions)], piecesLeft: PiecesLeft): Iterator[(SafePieces, AllowedPositions)] =
     if (piecesLeft.isEmpty) partial
-    else Stream() #::: addNextPieceToPartial(partial.map(safePositionsForNextPiece(piecesLeft.head)).flatten, piecesLeft.tail)
-  }
+    else addNextPieceToPartial(partial.map(safePositionsForNextPiece(piecesLeft.head)).flatten, piecesLeft.tail)
 
-  def solve(allowedPositions: AllowedPositions, piecesLeft: PiecesLeft): Stream[SafePieces] =
-    addNextPieceToPartial(Stream((SortedSet(), allowedPositions)), piecesLeft).map(_._1)
+  def initializeStream(allowedPositions: AllowedPositions): Stream[(SafePieces, AllowedPositions)] =
+    Stream((SortedSet(), allowedPositions))
+
+  def solve(allowedPositions: AllowedPositions, piecesLeft: PiecesLeft): Iterator[SafePieces] =
+    addNextPieceToPartial(initializeStream(allowedPositions).toIterator, piecesLeft).map(_._1)
 }
 
 class SafePositions(n: Int, m: Int, kings: Int, knights: Int, rooks: Int, bishops: Int, queens: Int) {
-  lazy val board = SafePositions.makeBoard(n, m)
-  lazy val piecesLeft = SafePositions.makeFactories(kings, knights, rooks, bishops, queens)
-  lazy val solution = SafePositions.solve(board, piecesLeft)
+  def board = SafePositions.makeBoard(n, m)
+  def piecesLeft = SafePositions.makeFactories(kings, knights, rooks, bishops, queens)
+  def solution = SafePositions.solve(board, piecesLeft)
 
-  def validateSolution: Boolean = {
-    val requiredSafePieces = kings + knights + rooks + bishops + queens
-    lazy val combinationsMatchingRequirements = solution.filter(_.size == requiredSafePieces)
-    combinationsMatchingRequirements.size == solution.size
-  }
+  def size: Int = solution.size
 }
